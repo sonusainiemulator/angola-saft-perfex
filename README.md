@@ -36,37 +36,40 @@ A powerful, secure, and fully compliant electronic invoicing module for Perfex C
 
 ---
 
-## 📦 Installation
+## 💎 Professional Services & Custom Development
 
-1. **Clone the repository** into your Perfex CRM modules directory:
-   ```bash
-   cd application/modules
-   git clone https://github.com/your-repo/angola_saft.git
-   ```
+**Looking for a custom Perfex CRM module or specialized integration?**  
+We offer professional development services for Perfex CRM, including:
+- **Custom Module Development**: Tailored solutions for your specific business needs.
+- **Payment Gateway Integrations**: Secure and local payment methods.
+- **Third-Party API Integrations**: Sync your CRM with any external tool.
+- **Security & Compliance**: Regional tax compliance modules (like this one!).
 
-2. **Activate the module**:
-   Navigate to **Setup > Modules** in your Perfex Admin dashboard and click **Activate** on "Angola E-Invoice".
-
----
-
-## ⚙️ Configuration
-
-1. **Software Certification**: Enter your AGT certification number in the module settings.
-2. **Key Setup**:
-   - Go to **Settings > Finance > Angola E-Invoice**.
-   - Paste your **RSA Private Key** and **RSA Public Key** (PEM format).
-3. **API Integration**:
-   - Provide the **AGT Portal Endpoint** and **API Bearer Token**.
+### 🚀 [Hire Us / Request a Quote](mailto:your-email@example.com)
 
 ---
 
-## 📄 Global Export
-Access the global SAF-T AO export utility under **Utilities > Angola SAF-T Export**. You can generate monthly XML audit files for a custom date range.
+## 🤝 Contribution & Community
+We welcome contributions from the community! Whether it's a bug fix, a new feature, or documentation improvement.
+- **Check the [CONTRIBUTING.md](CONTRIBUTING.md) guide** to get started.
+- **Join our community**: [Discord/Link] | [LinkedIn]
 
 ---
 
-## 🤝 Contributing
-Contributions are welcome! If you have suggestions for new features or find a bug, please open an issue or submit a pull request.
+## 🆘 Help & Support
+If you encounter any issues or have questions:
+1. **GitHub Issues**: For bug reports and feature requests.
+2. **Professional Support**: For immediate assistance and custom fixes, [contact us reached here](mailto:your-email@example.com).
+
+---
+
+## ❤️ Support Our Work
+If this module has helped your business save time and stay compliant, consider supporting its continued development:
+- **[Donate via PayPal](https://paypal.me/your-link)**
+- **[Buy Me a Coffee](https://buymeacoffee.com/your-link)**
+
+---
 
 ## 📄 License
 This module is licensed under the MIT License.
+
