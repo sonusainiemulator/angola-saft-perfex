@@ -27,7 +27,39 @@ A powerful, secure, and fully compliant electronic invoicing module for Perfex C
 
 ---
 
+## 🛠️ How It Works & Testing
+
+Interested in how this module ensures compliance? Follow these steps to test the end-to-end functionality:
+
+### 1. Module Activation
+Navigate to **Setup > Modules** and click **Activate** on "Angola E-Invoice (SAF-T AO)". This will initialize the required database tables (`tblsaft_ao_hashes`) and register the core hooks.
+
+### 2. Configure AGT Settings
+Go to **Setup > Settings > Finance > Angola E-Invoice** and enter your credentials:
+- **Certification Number**: Your unique software ID (e.g., `001/AGT/2026`).
+- **RSA Keys**: Paste your private and public keys in PEM format. These are used for SHA1 digital signing.
+- **API Token**: Enter your AGT Portal access token for real-time JSON submission.
+
+### 3. Invoice Creation & Auto-Signing
+Create a new Invoice (**Invoices > Create New Invoice**) and save it.
+- The module will **automatically sign** the document in the background.
+- Each signature incorporates the **hash of the previous document**, forming an unbreakable sequential chain for audit integrity.
+
+### 4. Verify in Activity Log
+Check **Utilities > Activity Log** to see the system confirmation:
+- `Invoice #XXX signed for Angola SAF-T AO (Hash: xxxxx...)`
+- `Invoice #XXX submitted successfully to AGT Portal.`
+
+### 5. Monthly SAF-T XML Export
+To generate your tax reporting file:
+- Go to **Utilities > Angola SAF-T Export**.
+- Select the date range (e.g., full month).
+- Click **Generate SAF-T AO XML** to download the compliant XML audit file.
+
+---
+
 ## 🛠️ Technical Stack
+
 - **Languages**: PHP 8.x
 - **Namespaces**: PSR-4 (`AngolaSaft\`)
 - **Encryption**: OpenSSL (RSA-SHA1)
