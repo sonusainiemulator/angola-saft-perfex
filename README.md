@@ -18,6 +18,13 @@ A powerful, secure, and fully compliant electronic invoicing module for Perfex C
 
 ---
 
+## 🚀 What's New (v1.1.0)
+- **Advanced Export Utility**: Added a powerful new UI for SAF-T AO global exports.
+- **Dynamic Filtering**: Filter exports by **Status** (Paid, Unpaid, Cancelled, etc.) and **Period** (This Month, Last Year, Custom Range).
+- **Credit Note Support**: Full export support for Credit Notes alongside Invoices.
+
+---
+
 ## 🔥 Key Features
 
 ### 🛡️ Digital Security
@@ -26,14 +33,14 @@ A powerful, secure, and fully compliant electronic invoicing module for Perfex C
 - **Key Management**: Integrated storage and rotation of RSA Private & Public keys.
 
 ### 📤 Compliance & Reporting
-- **SAF-T AO 1.01 XML**: Monthly global summary generation with full audit details.
+- **Advanced SAF-T AO Export**: Flexible utility to generate compliant XML 1.01 files with advanced status and date filters.
 - **Real-time API (2026)**: Automatic JSON submission to the AGT REST API gateway for government-cleared invoicing.
 - **Auto-Formatting**: Compliant numbering for Invoices (`FT`) and Credit Notes (`NC`).
 
 ### ⚡ Seamless Integration
-- **Perfex 3.4.1 Support**: Built specifically for modern Perfex installations with updated sidebars, settings, and permissions.
-- **Mustache Engine**: Leverages the flexible `einvoice` baseline for highly customizable XML/JSON templates.
-- **Automatic Submission**: Asynchronous hooks for document signing and API reporting on creation.
+- **Modern Perfex Support (v3.4.1)**: Fully compatible with the latest sidebar navigation and settings hierarchy.
+- **Automated Workflow**: Real-time signing and reporting triggered instantly on document creation.
+
 
 ---
 
