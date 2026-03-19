@@ -26,8 +26,8 @@ class Export extends AdminController
      */
     public function generate()
     {
-        $date_from = $this->input->get('from');
-        $date_to = $this->input->get('to');
+        $date_from = to_sql_date($this->input->get('from'));
+        $date_to = to_sql_date($this->input->get('to'));
 
         if (!$date_from || !$date_to) {
             set_alert('warning', 'Please select a date range.');
