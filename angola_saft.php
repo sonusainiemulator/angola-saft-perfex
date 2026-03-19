@@ -45,13 +45,15 @@ function angola_saft_module_init()
     // Load helper
     $CI->load->helper('angola_saft/angola_saft');
 
-    // Add settings section child to finance
-    $CI->app->add_settings_section_child('finance', 'angola_saft', [
+    // Add settings section child to sales (core section for guaranteed visibility)
+    $CI->app->add_settings_section_child('sales', 'angola_saft', [
         'name'     => 'Angola E-Invoice',
         'view'     => 'angola_saft/settings',
-        'position' => 45,
+        'position' => 60,
         'icon'     => 'fa-solid fa-file-invoice-dollar',
     ]);
+
+
 
 
     // Add menu item under utilities
