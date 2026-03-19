@@ -1,0 +1,11 @@
+{
+    "name": "perfexcrm/angola_saft",
+    "description": "Angola E-Invoice (SAF-T AO) compliance module for Perfex CRM",
+    "type": "perfex-module",
+    "version": "1.0.0",
+    "autoload": {
+        "psr-4": {
+            "AngolaSaft\\": "src/"
+        }
+    }
+}
