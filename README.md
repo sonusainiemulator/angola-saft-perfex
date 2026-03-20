@@ -18,7 +18,13 @@ A powerful, secure, and fully compliant electronic invoicing module for Perfex C
 
 ---
 
-## 🚀 What's New (v1.1.0)
+## 🚀 What's New (v1.2.0)
+- **One-Click Consolidated Export**: Generates a single, compliant SAF-T AO XML that concurrently aggregates both Sales Invoices (`FT`) and Credit Notes (`NC`), correctly mapping `<DebitAmount>` and `<CreditAmount>`.
+- **Dynamic MasterFiles Population**: Automatically traverses all exported documents to construct accurate `<Customer>` and `<Product>` dictionaries embedded directly in the `<MasterFiles>` header.
+- **TaxTable Compliance**: Properly structured standard tax mappings (`TaxTableEntry`) for `IVA` inclusion.
+- **Native PHP XML Construction**: Deprecated legacy Mustache parsing for the final SAF-T output in favor of rock-solid native PHP logic to eliminate view-render inconsistencies.
+
+## 🚀 Previous Updates (v1.1.0)
 - **Advanced Export Utility**: Added a powerful new UI for SAF-T AO global exports.
 - **Dynamic Filtering**: Filter exports by **Status** (Paid, Unpaid, Cancelled, etc.) and **Period** (This Month, Last Year, Custom Range).
 - **Credit Note Support**: Full export support for Credit Notes alongside Invoices.
@@ -81,7 +87,7 @@ To generate your tax reporting file:
 - **Namespaces**: PSR-4 (`AngolaSaft\`)
 - **Encryption**: OpenSSL (RSA-SHA1)
 - **Reporting**: SAF-T AO 1.01 (XSD-compliant)
-- **Templates**: Mustache-based Data Mapping
+- **Templates**: Native PHP (Dependency-free accurate XML mappings)
 
 ---
 

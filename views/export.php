@@ -10,15 +10,6 @@
                     <div class="panel-body">
                         <div class="row">
                             <div class="col-md-12">
-                                <!-- Export Type -->
-                                <div class="form-group select-placeholder">
-                                    <label for="export_type">Export Type</label>
-                                    <select name="export_type" id="export_type" class="selectpicker" data-width="100%">
-                                        <option value="invoice" selected>Invoices</option>
-                                        <option value="credit_note">Credit Notes</option>
-                                    </select>
-                                </div>
-
                                 <!-- Status Filters for Invoices -->
                                 <div class="form-group shifter invoices_shifter">
                                     <label>Status</label>
@@ -34,9 +25,9 @@
                                     <?php } ?>
                                 </div>
 
-                                <!-- Status Filters for Credit Notes (Hidden by default) -->
-                                <div class="form-group hide shifter credit_note_shifter">
-                                    <label>Status</label>
+                                <!-- Status Filters for Credit Notes -->
+                                <div class="form-group shifter credit_note_shifter">
+                                    <label>Credit Note Status</label>
                                     <div class="radio radio-primary">
                                         <input type="radio" id="cn_all" value="all" checked name="cn_status">
                                         <label for="cn_all">All</label>
@@ -98,11 +89,5 @@
             }
         });
 
-        // Handle Export Type changes
-        $('#export_type').on('change', function() {
-            var val = $(this).val();
-            $('.shifter').addClass('hide');
-            $('.' + val + '_shifter').removeClass('hide');
-        });
     });
 </script>

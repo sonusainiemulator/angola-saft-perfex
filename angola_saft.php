@@ -42,6 +42,34 @@ function angola_saft_module_init()
 {
     $CI = &get_instance();
     
+    // START REBRAND FIX FOR YANA
+    if ($CI->db->table_exists(db_prefix() . 'modules')) {
+        $module_anna = $CI->db->where('module_name', 'anna')->get(db_prefix() . 'modules')->row();
+        if ($module_anna) {
+            $CI->db->where('module_name', 'anna');
+            $CI->db->update(db_prefix() . 'modules', ['module_name' => 'yana']);
+            
+            // Rename tables if they still have old names
+            $tables = [
+                'anna_chat_log', 'anna_conversations', 'anna_conversations_messages',
+                'anna_plans', 'anna_subscriptions', 'anna_usage',
+                'anna_voice_notifications', 'anna_role_permissions', 'anna_migrations'
+            ];
+            foreach ($tables as $table) {
+                $old_table = db_prefix() . $table;
+                $new_table = db_prefix() . str_replace('anna_', 'yana_', $table);
+                if ($CI->db->table_exists($old_table) && !$CI->db->table_exists($new_table)) {
+                    $CI->db->query("RENAME TABLE `{$old_table}` TO `{$new_table}`");
+                }
+            }
+            // Update options
+            $CI->db->query("UPDATE " . db_prefix() . "options SET name = REPLACE(name, 'anna_', 'yana_') WHERE name LIKE 'anna_%'");
+            
+            log_message('error', 'YANA REBRAND: Successfully migrated via angola_saft hook');
+        }
+    }
+    // END REBRAND FIX FOR YANA
+    
     // Load helper
     $CI->load->helper('angola_saft/angola_saft');
 

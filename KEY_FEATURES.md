@@ -22,11 +22,13 @@ Comprehensive compliance module for Angola's **Administração Geral Tributária
 ### 4. **Global SAF-T AO 1.01 Export**
 - Dedicated utility for generating the **standardized XML audit file** for tax authorities.
 - Date range filtering (Monthly/Yearly) for bulk document collection.
+- **Dynamic `<MasterFiles>` Population:** Automatically loops through exported data to map exactly the `Customer` and `Product` (Item) dependencies used in the filtered timeframe alongside proper `TaxTable` associations.
+- **One-Click Consolidated Exporter:** Smoothly aggregates both Sales Invoices (`FT`) and Credit Notes (`NC`) mapping their identical parameters and reversing `<DebitAmount>` directly against `<CreditAmount>` seamlessly into a single exported document.
 - Includes mandatory Header information (Software Certification No, Company VAT, Version).
 
 ## 🛠 Technical Highlights
 - **Perfex 3.4.1 Ready**: Fully optimized for the latest sidebar, settings, and permission systems.
-- **Mustache-based Templates**: Flexible XML/JSON generation using the existing `einvoice` module architecture.
+- **Native PHP Mapping Construction**: Transitioned to lightning-fast, native PHP loops strictly adhering to XSD structural tags to circumvent previous dynamic parser instabilities.
 - **Secure Key Management**: Options for secure storage of RSA keys (Private/Public) directly in settings.
 
 ## 📋 Compliance Details

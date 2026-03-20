@@ -58,29 +58,6 @@ class Export extends AdminController
             $date_to   = to_sql_date($this->input->get('to'));
         }
 
-        // Build Query
-        $table = ($export_type == 'invoice') ? db_prefix() . 'invoices' : db_prefix() . 'creditnotes';
-        $rel_type = ($export_type == 'invoice') ? 'invoice' : 'credit_note';
-        
-        $this->db->select($table . '.*, ' . db_prefix() . 'saft_ao_hashes.hash, ' . db_prefix() . 'saft_ao_hashes.prev_hash, ' . db_prefix() . 'saft_ao_hashes.signature, ' . db_prefix() . 'saft_ao_hashes.signing_key_version as hash_control');
-        $this->db->join(db_prefix() . 'saft_ao_hashes', db_prefix() . 'saft_ao_hashes.rel_id = ' . $table . '.id AND rel_type = "' . $rel_type . '"', 'left');
-        
-        if ($date_from) {
-            $this->db->where('date >=', $date_from);
-        }
-        if ($date_to) {
-            $this->db->where('date <=', $date_to);
-        }
-
-        // Apply Status Filters
-        if ($export_type == 'invoice' && $status !== 'all') {
-            $this->db->where('status', $status);
-        } elseif ($export_type == 'credit_note' && $cn_status !== 'all') {
-            $this->db->where('status', $cn_status);
-        }
-
-        $results = $this->db->get($table)->result();
-
         // Prepare data for template
         $saftData = [
             'COMPANY_VAT'    => get_option('company_vat'),
@@ -92,34 +69,124 @@ class Export extends AdminController
             'CURRENCY_CODE'  => get_base_currency()->name,
             'CERTIFICATE_NO' => get_option('angola_saft_certification_no'),
             'SOFTWARE_NAME'  => 'Perfex CRM Angola',
-            'INVOICES'       => []
+            'INVOICES'       => [],
+            'CUSTOMERS'      => [],
+            'PRODUCTS'       => [],
+            'TOTAL_CREDIT'   => 0.00,
+            'TOTAL_DEBIT'    => 0.00
         ];
 
-        foreach ($results as $item) {
-            if ($export_type == 'invoice') {
-                $einvoiceData = new \Perfexcrm\EInvoice\Data\Invoice($item);
-            } else {
-                $einvoiceData = new \Perfexcrm\EInvoice\Data\CreditNote($item);
-            }
-            
+        $collected_customers = [];
+        $collected_products  = [];
+
+        // 1. Fetch Invoices
+        $this->db->select(db_prefix() . 'invoices.*, ' . db_prefix() . 'saft_ao_hashes.hash, ' . db_prefix() . 'saft_ao_hashes.prev_hash, ' . db_prefix() . 'saft_ao_hashes.signature, ' . db_prefix() . 'saft_ao_hashes.signing_key_version as hash_control');
+        $this->db->join(db_prefix() . 'saft_ao_hashes', db_prefix() . 'saft_ao_hashes.rel_id = ' . db_prefix() . 'invoices.id AND rel_type = "invoice"', 'left');
+        if ($date_from) { $this->db->where('date >=', $date_from); }
+        if ($date_to) { $this->db->where('date <=', $date_to); }
+        if ($status !== 'all') { $this->db->where('status', $status); }
+        $invoices = $this->db->get(db_prefix() . 'invoices')->result();
+
+        foreach ($invoices as $item) {
+            $einvoiceData = new \Perfexcrm\EInvoice\Data\Invoice($item);
             $docData = $einvoiceData->jsonSerialize();
             $docData = angola_saft_inject_template_data($docData);
             
-            // Ensure hash data from the join is used if the inject helper didn't find it (saft legacy)
             if (empty($docData['HASH']) && !empty($item->hash)) {
                 $docData['HASH'] = $item->hash;
                 $docData['HASH_CONTROL'] = $item->hash_control;
             }
+            $docData['INVOICE_TYPE_CODE'] = 'FT'; // Fatura
+            $docData['SAFT_DOCUMENT_TOTAL'] = $docData['INVOICE_TOTAL'];
 
             $saftData['INVOICES'][] = $docData;
+            $saftData['TOTAL_CREDIT'] += $docData['SAFT_DOCUMENT_TOTAL'];
+
+            // Extract Customer
+            $customer_id = $docData['CUSTOMER_ID'] ?? '1';
+            if (!isset($collected_customers[$customer_id])) {
+                $collected_customers[$customer_id] = [
+                    'CUSTOMER_ID'      => $customer_id,
+                    'CUSTOMER_VAT'     => $docData['CUSTOMER_VAT'] ?? '999999999',
+                    'CUSTOMER_NAME'    => $docData['CUSTOMER_NAME'] ?? 'Consumidor Final',
+                    'CUSTOMER_ADDRESS' => $docData['CUSTOMER_ADDRESS'] ?? 'Desconhecido',
+                    'CUSTOMER_CITY'    => $docData['CUSTOMER_CITY'] ?? 'Desconhecido',
+                ];
+            }
+
+            // Extract Products
+            if (isset($docData['LINE_ITEMS']) && is_array($docData['LINE_ITEMS'])) {
+                foreach ($docData['LINE_ITEMS'] as $line) {
+                    $item_id = $line['ITEM_ID'] ?? '1';
+                    if (!isset($collected_products[$item_id])) {
+                        $collected_products[$item_id] = [
+                            'ITEM_ID'          => $item_id,
+                            'ITEM_DESCRIPTION' => $line['ITEM_DESCRIPTION'] ?? 'Produto',
+                        ];
+                    }
+                }
+            }
         }
+
+        // 2. Fetch Credit Notes
+        $this->db->select(db_prefix() . 'creditnotes.*, ' . db_prefix() . 'saft_ao_hashes.hash, ' . db_prefix() . 'saft_ao_hashes.prev_hash, ' . db_prefix() . 'saft_ao_hashes.signature, ' . db_prefix() . 'saft_ao_hashes.signing_key_version as hash_control');
+        $this->db->join(db_prefix() . 'saft_ao_hashes', db_prefix() . 'saft_ao_hashes.rel_id = ' . db_prefix() . 'creditnotes.id AND rel_type = "credit_note"', 'left');
+        if ($date_from) { $this->db->where('date >=', $date_from); }
+        if ($date_to) { $this->db->where('date <=', $date_to); }
+        if ($cn_status !== 'all') { $this->db->where('status', $cn_status); }
+        $credit_notes = $this->db->get(db_prefix() . 'creditnotes')->result();
+
+        foreach ($credit_notes as $item) {
+            $einvoiceData = new \Perfexcrm\EInvoice\Data\CreditNote($item);
+            $docData = $einvoiceData->jsonSerialize();
+            $docData = angola_saft_inject_template_data($docData);
+            
+            if (empty($docData['HASH']) && !empty($item->hash)) {
+                $docData['HASH'] = $item->hash;
+                $docData['HASH_CONTROL'] = $item->hash_control;
+            }
+            $docData['INVOICE_TYPE_CODE'] = 'NC'; // Nota de Crédito
+            $docData['SAFT_DOCUMENT_TOTAL'] = $docData['INVOICE_TOTAL'];
+
+            $saftData['INVOICES'][] = $docData;
+            $saftData['TOTAL_DEBIT'] += $docData['SAFT_DOCUMENT_TOTAL']; // Credit notes increase Debit in SAFT
+
+            // Extract Customer
+            $customer_id = $docData['CUSTOMER_ID'] ?? '1';
+            if (!isset($collected_customers[$customer_id])) {
+                $collected_customers[$customer_id] = [
+                    'CUSTOMER_ID'      => $customer_id,
+                    'CUSTOMER_VAT'     => $docData['CUSTOMER_VAT'] ?? '999999999',
+                    'CUSTOMER_NAME'    => $docData['CUSTOMER_NAME'] ?? 'Consumidor Final',
+                    'CUSTOMER_ADDRESS' => $docData['CUSTOMER_ADDRESS'] ?? 'Desconhecido',
+                    'CUSTOMER_CITY'    => $docData['CUSTOMER_CITY'] ?? 'Desconhecido',
+                ];
+            }
+
+            // Extract Products
+            if (isset($docData['LINE_ITEMS']) && is_array($docData['LINE_ITEMS'])) {
+                foreach ($docData['LINE_ITEMS'] as $line) {
+                    $item_id = $line['ITEM_ID'] ?? '1';
+                    if (!isset($collected_products[$item_id])) {
+                        $collected_products[$item_id] = [
+                            'ITEM_ID'          => $item_id,
+                            'ITEM_DESCRIPTION' => $line['ITEM_DESCRIPTION'] ?? 'Produto',
+                        ];
+                    }
+                }
+            }
+        }
+
+        $saftData['CUSTOMERS'] = array_values($collected_customers);
+        $saftData['PRODUCTS']  = array_values($collected_products);
+        $saftData['TOTAL_ENTRIES'] = count($saftData['INVOICES']);
 
         // Render using the global template
         $template = $this->load->view('angola_saft/saft_global_xml', $saftData, true);
 
         // Download
         header('Content-Type: application/xml');
-        header('Content-Disposition: attachment; filename="SAFT_AO_' . $export_type . 's_' . ($date_from ?: 'all') . '.xml"');
+        header('Content-Disposition: attachment; filename="SAFT_AO_Documents_' . ($date_from ?: 'all') . '.xml"');
         echo $template;
         exit;
     }
